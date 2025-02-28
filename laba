@@ -1,0 +1,77 @@
+"""Реализация алгоритма Рабина-Карпа на языке Python"""
+
+
+def rabin_karp(txt, sub_string):
+    """Функция реализует алгоритм Рабина-Карпа
+    :param txt: исходный текст
+    :param sub_string: подстрока, которую ищем
+    :returns: индекс подстроки в исходном тексте
+    """
+    d = 256
+    q = 10**9 + 7
+    len_str = len(txt)
+    len_sub = len(sub_string)
+    hash_text = 0
+    hash_substr = 0
+    h = pow(d, len_sub - 1) % q
+
+    # Вычисляем хеш для sub_string и первого окна в text
+    for i in range(len_sub):
+        hash_substr = (d * hash_substr + ord(sub_string[i])) % q
+        hash_text = (d * hash_text + ord(txt[i])) % q
+
+    # Сдвигаем окно по тексту
+    for i in range(len_str - len_sub + 1):
+        if hash_substr == hash_text:
+            for j in range(len_sub):
+                if txt[i + j] != sub_string[j]:
+                    break
+            else:
+                return i
+
+        # Вычисляем хеш для следующего окна текста
+        if i < len_str - len_sub:
+            hash_text = (d * (hash_text - ord(txt[i]) * h)
+                         + ord(txt[i + len_sub])) % q
+            if hash_text < 0:
+                hash_text = hash_text + q
+    return -1
+
+
+FLAG = True
+while FLAG:
+    print("Выберите действие", "1. Ввод строки и подстроки", sep='\n')
+    print("2. Ввод строки и множества подстрок")
+    print("3. Завершение программы")
+    state = int(input())
+    match (state):
+        case 1:
+            print("Введите строку ", end='')
+            text = input()
+            print("Введите подстроку ", end='')
+            sub_str = input()
+            index = rabin_karp(text, sub_str)
+            if index != -1:
+                print("Подстрока найдена на месте", index)
+            else:
+                print("Подстрока не найдена")
+            print('\n')
+        case 2:
+            print("Введите строку ", end='')
+            text = input()
+            print("Введите количество подстрок ", end='')
+            num_str = int(input())
+            COUNT = 1
+            while num_str >= COUNT:
+                print("Введите", COUNT, "подстроку")
+                sub_str = input()
+                index = rabin_karp(text, sub_str)
+                if index != -1:
+                    print("Подстрока найдена на месте", index)
+                else:
+                    print("Подстрока не найдена")
+                COUNT += 1
+            print('\n')
+        case 3:
+            print("Программа завершена")
+            FLAG = False
