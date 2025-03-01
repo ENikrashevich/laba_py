@@ -15,7 +15,7 @@ def rabin_karp(txt, sub_string):
     hash_substr = 0
     h = pow(d, len_sub - 1) % q
 
-    # Вычисляем хеш для sub_string и первого окна в text
+    # Вычисляем хеш для sub_string и первого окна в txt
     for i in range(len_sub):
         hash_substr = (d * hash_substr + ord(sub_string[i])) % q
         hash_text = (d * hash_text + ord(txt[i])) % q
