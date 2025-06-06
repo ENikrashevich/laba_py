@@ -13,7 +13,9 @@ public class Product {
         this.providerId = providerId;
     }
 
-    public String getName() {
-        return name;
-    }
+    public String getName() {return name;}
+    public int getStoreId() {return storeId;}
+    public int getSupplierId() {return supplierId;}
+    public double getPrice() {return price;}
+    public int getProviderId() {return providerId;}
 }

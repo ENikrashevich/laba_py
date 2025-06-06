@@ -1,7 +1,7 @@
 public class Supplier {
     private final int supplierId;
     private final Product product;
-    private  int quantity;
+    private int quantity;
 
     public Supplier(int supplierId, Product product, int quantity) {
         this.supplierId = supplierId;
@@ -23,7 +23,5 @@ public class Supplier {
         }
     }
 
-    public Product getProduct() {
-        return product;
-    }
+    public Product getProduct() {return product;}
 }

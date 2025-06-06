@@ -15,6 +15,10 @@ public class Customer {
     public void placeOrder(Product[] items, Storage storage) {
         Order order = new Order(items, storage.getLocation(), this.location, storage);
         storage.addOrder(order);
-        System.out.println("Покупатель " + customerId + " сделал заказ " + order.getOrderId());
+        System.out.print("Покупатель " + customerId + " сделал заказ " + order.getOrderId() + ": ");
+        for (Product item : items){
+            System.out.print(item.getName() + " ");
+        }
+        System.out.println();
     }
 }

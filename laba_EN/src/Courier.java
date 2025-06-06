@@ -72,6 +72,6 @@ public class Courier extends Employee {
         return Math.sqrt(dx * dx + dy * dy);
     }
 
-    public void setStorage(Storage storage){this.storage = storage;    }
-    public boolean isReturning() {return isReturning;   }
+    public void setStorage(Storage storage){this.storage = storage;}
+    public boolean isReturning() {return isReturning;}
 }

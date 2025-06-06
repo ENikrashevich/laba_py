@@ -21,38 +21,24 @@ public class Storage {
         this.readyForDelivery = new LinkedList<>();
     }
 
-    public void addSupplier(Supplier supplier) {
-        suppliers.add(supplier);
-    }
+    public void addSupplier(Supplier supplier) {suppliers.add(supplier);}
 
-    public void addStaffMember(WarehouseStaff staffMember) {
-        staff.add(staffMember);
-    }
+    public void addStaffMember(WarehouseStaff staffMember) {staff.add(staffMember);}
 
     public void addCourier(Courier courier) {
         couriers.add(courier);
         courier.setStorage(this);
     }
 
-    public void addOrder(Order order) {
-        pendingOrders.offer(order);
-    }
+    public void addOrder(Order order) {pendingOrders.offer(order);}
 
-    public int getStorageId() {
-        return storageId;
-    }
+    public int getStorageId() {return storageId;}
 
-    public List<Integer> getLocation() {
-        return location;
-    }
+    public List<Integer> getLocation() {return location;}
 
-    public Map<Product, Integer> getInventory() {
-        return inventory;
-    }
+    public Map<Product, Integer> getInventory() {return inventory;}
 
-    public Queue<Order> getPendingOrders() {
-        return pendingOrders;
-    }
+    public Queue<Order> getPendingOrders() {return pendingOrders;}
 
     private void requestRestock(Product product, int quantity) {
         for (Supplier supplier : suppliers) {
@@ -73,7 +59,7 @@ public class Storage {
             for (Product item : order.getItems()) {
                 int available = inventory.getOrDefault(item, 0);
                 if (available <= 0) {
-                    requestRestock(item, 10);
+                    requestRestock(item, 5);
                     available = inventory.getOrDefault(item, 0);
                 }
                 if (available <= 0) {
@@ -134,6 +120,7 @@ public class Storage {
             }
         }
         pendingOrders.offer(order);
+        System.out.println("Нет свободных сборщиков");
     }
 
     // Обработка готовых заказов

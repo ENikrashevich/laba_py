@@ -8,9 +8,7 @@ public class WarehouseStaff extends Employee {
 
     @Override
     public void processOrder() {
-        if (currentOrder == null || !isWorking()) {
-            return;
-        }
+        if (currentOrder == null || !isWorking()) {return;}
 
         Map<Product, Integer> inventory = currentOrder.getStorage().getInventory();
         boolean itemsAvailable = true;
@@ -45,7 +43,8 @@ public class WarehouseStaff extends Employee {
 
         if (currentOrder.getStorage().hasAvailableCourier()) {
             currentOrder.getStorage().assignToCourier(currentOrder);
-        } else {
+        }
+        else {
             // Если нет свободных курьеров, добавляем в очередь готовых заказов
             currentOrder.getStorage().addReadyForDelivery(currentOrder);
             System.out.println("Заказ " + currentOrder.getOrderId() +

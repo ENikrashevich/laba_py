@@ -7,14 +7,14 @@ public class Main {
     public static void main(String[] args) {
         SimulationTime.setTime(LocalTime.of(9, 0));
 
-        Product laptop = new Product("Ноутбук", 1, 101, 50000.0, 1001);
-        Product phone = new Product("Телефон", 2, 102, 30000.0, 1002);
-        Product tablet = new Product("Планшет", 3, 103, 35000.0, 1003);
+        Product chair = new Product("Стул", 1, 1, 3332.0, 1);
+        Product sofa = new Product("Диван", 2, 2, 31111.0, 2);
+        Product table = new Product("Стол", 3, 3, 3222.0, 3);
 
         Map<Product, Integer> stock = new HashMap<>();
-        stock.put(laptop, 1);
-        stock.put(phone, 2);
-        stock.put(tablet, 0);
+        stock.put(chair, 1);
+        stock.put(sofa, 2);
+        stock.put(table, 0);
         Storage storage = new Storage(stock, List.of(0, 0));
 
         Courier courier = new Courier(LocalTime.of(9, 0), LocalTime.of(18, 0));
@@ -23,13 +23,13 @@ public class Main {
         storage.addCourier(courier);
         storage.addStaffMember(keeper);
 
-        Supplier supplierLaptop = new Supplier(1, laptop, 1);
-        Supplier supplierPhone = new Supplier(2, phone,4);
-        Supplier supplierTablet = new Supplier(3, tablet,3);
+        Supplier supplierLaptop = new Supplier(1, chair, 1);
+        Supplier suppliersofa = new Supplier(2, sofa,4);
+        Supplier suppliertable = new Supplier(3, table,3);
 
         storage.addSupplier(supplierLaptop);
-        storage.addSupplier(supplierPhone);
-        storage.addSupplier(supplierTablet);
+        storage.addSupplier(suppliersofa);
+        storage.addSupplier(suppliertable);
 
         Customer user1 = new Customer("user1@mail.ru", List.of(5, 5));
         Customer user2 = new Customer("user2@mail.ru", List.of(10, 10));
@@ -37,15 +37,15 @@ public class Main {
         Customer user4 = new Customer("user4@mail.ru", List.of(20, 20));
 
         System.out.println("\n=== Заказ 1 в " + SimulationTime.currentTime() + " ===");
-        user1.placeOrder(new Product[]{laptop}, storage);
+        user1.placeOrder(new Product[]{chair}, storage);
         System.out.println("\n=== Заказ 2 в " + SimulationTime.currentTime() + " ===");
-        user2.placeOrder(new Product[]{phone, phone}, storage);
+        user2.placeOrder(new Product[]{sofa, sofa}, storage);
         storage.processOrders();
 
         System.out.println("\n=== Заказ 3 в " + SimulationTime.currentTime() + " ===");
-        user3.placeOrder(new Product[]{tablet}, storage);
+        user3.placeOrder(new Product[]{table}, storage);
         System.out.println("\n=== Заказ 4 в " + SimulationTime.currentTime() + " ===");
-        user4.placeOrder(new Product[]{phone, laptop, tablet}, storage);
+        user4.placeOrder(new Product[]{sofa, chair, table}, storage);
         storage.processOrders();
 
         System.out.println("\nОстаток на складе:");

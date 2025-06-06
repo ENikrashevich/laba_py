@@ -27,7 +27,6 @@ public class Order {
         this.orderId = nextId++;
     }
 
-    // Геттеры и сеттеры
     public Product[] getItems() { return items; }
     public int getOrderId() { return orderId; }
     public Status getStatus() { return status; }

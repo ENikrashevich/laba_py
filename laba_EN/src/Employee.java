@@ -15,7 +15,7 @@ public abstract class Employee {
         this.employeeId = new Random().nextInt(1000);
         this.shiftStart = shiftStart;
         this.shiftEnd = shiftEnd;
-        this.status = "Off-duty";
+        this.status = "Свободен";
         this.earnings = 0;
     }
 
@@ -31,7 +31,6 @@ public abstract class Employee {
         System.out.println("Работник " + employeeId + " заработал: " + earnings + " руб.");
     }
 
-    // Геттеры и сеттеры
     public int getEmployeeId() { return employeeId; }
     public Order getCurrentOrder() { return currentOrder; }
     public void setCurrentOrder(Order order) { this.currentOrder = order; }
