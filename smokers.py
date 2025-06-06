@@ -11,6 +11,7 @@ import random
 import time
 import sys
 
+
 class ComponentStore:
     """
     Centralized storage of components and semaphores for synchronization.
@@ -33,7 +34,7 @@ class ComponentStore:
             'TM': ('Табак', 'Спички'),
             'PM': ('Бумагу', 'Спички')
         }
-    
+
     def get_pair_semaphore(self, pair_key):
         """
         Get a semaphore for a specific pair of components.
@@ -45,7 +46,7 @@ class ComponentStore:
             Semaphore: The semaphore corresponding to the requested pair
         """
         return self.pairs.get(pair_key)
-    
+
     def get_random_pair(self):
         """
        Randomly select an available pair of components.
@@ -54,7 +55,7 @@ class ComponentStore:
             str: A random key from the available component pairs
         """
         return random.choice(list(self.pairs.keys()))
-    
+
     def get_ingredients(self, pair_key):
         """
         Get the names of the components for the specified pair.
@@ -87,18 +88,18 @@ class Bartender(threading.Thread):
         """
         super().__init__(daemon=True)
         self.store = component_store
-    
+
     def run(self):
         """The main work cycle of the bartender."""
         while True:
             # Ожидать разрешения на размещение компонентов
             self.store.bartender_lock.acquire()
-            
+
             # Выбрать и разместить случайную пару
             selected = self.store.get_random_pair()
             item1, item2 = self.store.get_ingredients(selected)
             print(f"\033[94mБармен разместил: {item1} и {item2}\033[0m")
-            
+
             # Сигнализировать о наличии компонентов
             self.store.get_pair_semaphore(selected).release()
 
@@ -121,44 +122,42 @@ class Smoker(threading.Thread):
         needs (tuple): Necessary components
         store (Component Store): Link to the storage
     """
-    def __init__(self, name, owned, wait_for, needs, component_store):
+    def __init__(self, name, wait_for, needs, component_store):
         """
         Initialization of the smoker's flow.
 
         Params:
             name (str): The smoker's name
-            owned (str): A component owned by a smoker
             wait_for (Semaphore): The semaphore of the expected pair of components
             needs (tuple): A tuple of two necessary components
             component_store (ComponentStore): Shared component storage
         """
         super().__init__(daemon=True)
         self.name = name
-        self.owned = owned
         self.wait_sem = wait_for
         self.needs = needs
         self.store = component_store
-    
+
     def consume(self):
         """The process of smoking a cigarette."""
         print(f"\033[93m{self.name} начинает курить...\033[0m")
         delay = random.uniform(1.5, 4.5)
         time.sleep(delay)
         print(f"\033[93m{self.name} закончил ({delay:.1f} сек)\033[0m")
-    
+
     def run(self):
         """The main work cycle of a smoker."""
         while True:
             # Ожидать нужные компоненты
             self.wait_sem.acquire()
-            
+
             # Взять компоненты со стола
-            print(f"\033[92m{self.name} (имеет {self.owned}) "
+            print(f"\033[92m{self.name} "
                   f"берёт {self.needs[0]} и {self.needs[1]}\033[0m")
-            
+
             # Разрешить бармену положить новые компоненты
             self.store.bartender_lock.release()
-            
+
             # Процесс курения
             self.consume()
 
@@ -173,21 +172,20 @@ if __name__ == "__main__":
 
     # Конфигурация курильщиков
     smokers_config = [
-        ("Курильщик Т", "Табак", comp_store.pairs['PM'], ("Бумагу", "Спички")),
-        ("Курильщик Б", "Бумагу", comp_store.pairs['TM'], ("Табак", "Спички")),
-        ("Курильщик С", "Спички", comp_store.pairs['TP'], ("Табак", "Бумагу"))
+        ("Курильщик Т", comp_store.pairs['PM'], ("Бумагу", "Спички")),
+        ("Курильщик Б", comp_store.pairs['TM'], ("Табак", "Спички")),
+        ("Курильщик С", comp_store.pairs['TP'], ("Табак", "Бумагу"))
     ]
 
     # Создание и запуск курильщиков
     smokers = [
-        Smoker(name, owned, sem, needs, comp_store)
-        for name, owned, sem, needs in smokers_config
+        Smoker(name, sem, needs, comp_store)
+        for name, sem, needs in smokers_config
     ]
 
     for smoker in smokers:
         smoker.start()
 
-    # Обработка прерывания Ctrl+C
     try:
         # Бесконечное ожидание с периодической проверкой
         while all(smoker.is_alive() for smoker in smokers) and bartender.is_alive():
