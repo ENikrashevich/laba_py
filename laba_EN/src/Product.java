@@ -1,4 +1,3 @@
-// Product.java
 public class Product {
     private final String name;
     private final int storeId;

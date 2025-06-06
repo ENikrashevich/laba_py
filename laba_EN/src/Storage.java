@@ -73,9 +73,11 @@ public class Storage {
             for (Product item : order.getItems()) {
                 int available = inventory.getOrDefault(item, 0);
                 if (available <= 0) {
-                    canProcess = false;
                     requestRestock(item, 10);
-                    break;
+                    available = inventory.getOrDefault(item, 0);
+                }
+                if (available <= 0) {
+                    canProcess = false;
                 }
             }
 

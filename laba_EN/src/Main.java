@@ -12,9 +12,9 @@ public class Main {
         Product tablet = new Product("Планшет", 3, 103, 35000.0, 1003);
 
         Map<Product, Integer> stock = new HashMap<>();
-        stock.put(laptop, 3);
-        stock.put(phone, 4);
-        stock.put(tablet, 2);
+        stock.put(laptop, 1);
+        stock.put(phone, 2);
+        stock.put(tablet, 0);
         Storage storage = new Storage(stock, List.of(0, 0));
 
         Courier courier = new Courier(LocalTime.of(9, 0), LocalTime.of(18, 0));
@@ -22,6 +22,14 @@ public class Main {
 
         storage.addCourier(courier);
         storage.addStaffMember(keeper);
+
+        Supplier supplierLaptop = new Supplier(1, laptop, 1);
+        Supplier supplierPhone = new Supplier(2, phone,4);
+        Supplier supplierTablet = new Supplier(3, tablet,3);
+
+        storage.addSupplier(supplierLaptop);
+        storage.addSupplier(supplierPhone);
+        storage.addSupplier(supplierTablet);
 
         Customer user1 = new Customer("user1@mail.ru", List.of(5, 5));
         Customer user2 = new Customer("user2@mail.ru", List.of(10, 10));
@@ -37,7 +45,7 @@ public class Main {
         System.out.println("\n=== Заказ 3 в " + SimulationTime.currentTime() + " ===");
         user3.placeOrder(new Product[]{tablet}, storage);
         System.out.println("\n=== Заказ 4 в " + SimulationTime.currentTime() + " ===");
-        user4.placeOrder(new Product[]{laptop, tablet}, storage);
+        user4.placeOrder(new Product[]{phone, laptop, tablet}, storage);
         storage.processOrders();
 
         System.out.println("\nОстаток на складе:");

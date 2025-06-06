@@ -1,4 +1,3 @@
-// Employee.java
 import java.time.Duration;
 import java.time.LocalTime;
 import java.util.Random;
