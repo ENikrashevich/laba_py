@@ -1,0 +1,211 @@
+import java.util.concurrent.Semaphore;
+import java.util.Random;
+
+public class SmokersProblem {
+    static Semaphore agent = new Semaphore(1);
+    static Semaphore tobacco = new Semaphore(0);
+    static Semaphore paper = new Semaphore(0);
+    static Semaphore match = new Semaphore(0);
+    static Random rand = new Random();
+
+    static class Agent implements Runnable {
+        @Override
+        public void run() {
+            try {
+                while (true) {
+                    agent.acquire();
+                    int random = rand.nextInt(3);
+                    switch (random) {
+                        case 0: // Кладёт табак и бумагу
+                            System.out.println("Посредник положил ТАБАК и БУМАГУ");
+                            match.release();
+                            break;
+                        case 1: // Кладёт бумагу и спички
+                            System.out.println("Посредник положил БУМАГУ и СПИЧКИ");
+                            tobacco.release();
+                            break;
+                        case 2: // Кладёт табак и спички
+                            System.out.println("Посредник положил ТАБАК и СПИЧКИ");
+                            paper.release();
+                            break;
+                    }
+                }
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    static class Smoker implements Runnable {
+        private final Semaphore ingredient;
+        private final String name;
+
+        Smoker(Semaphore ingredient, String name) {
+            this.ingredient = ingredient;
+            this.name = name;
+        }
+
+        @Override
+        public void run() {
+            try {
+                while (true) {
+                    ingredient.acquire();
+                    System.out.println(name + " скручивает сигарету и курит");
+                    Thread.sleep(1000);
+                    agent.release();
+                }
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public static void main(String[] args) {
+        new Thread(new Agent()).start();
+        new Thread(new Smoker(tobacco, "Курильщик с ТАБАКОМ")).start();
+        new Thread(new Smoker(paper, "Курильщик с БУМАГОЙ")).start();
+        new Thread(new Smoker(match, "Курильщик со СПИЧКАМИ")).start();
+    }
+}
+
+
+
+import java.util.concurrent.Semaphore;
+
+public class DiningPhilosophers {
+    static final int N = 5;
+    static Semaphore[] forks = new Semaphore[N];
+    static Semaphore eatingLimit = new Semaphore(N - 1);
+
+    static class Philosopher implements Runnable {
+        private final int id;
+
+        Philosopher(int id) {
+            this.id = id;
+        }
+
+        @Override
+        public void run() {
+            try {
+                while (true) {
+                    think();
+                    eat();
+                }
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+
+        void think() throws InterruptedException {
+            System.out.println("Философ " + id + " размышляет");
+            Thread.sleep(500);
+        }
+
+        void eat() throws InterruptedException {
+            eatingLimit.acquire();
+            
+            forks[id].acquire();
+            forks[(id + 1) % N].acquire();
+            
+            System.out.println("Философ " + id + " ест");
+            Thread.sleep(300);
+            
+            forks[id].release();
+            forks[(id + 1) % N].release();
+            
+            eatingLimit.release();
+        }
+    }
+
+    public static void main(String[] args) {
+        for (int i = 0; i < N; i++) {
+            forks[i] = new Semaphore(1);
+        }
+        
+        for (int i = 0; i < N; i++) {
+            new Thread(new Philosopher(i)).start();
+        }
+    }
+}
+
+
+
+import java.util.concurrent.Semaphore;
+import java.util.Queue;
+import java.util.LinkedList;
+
+public class SleepingBarber {
+    static final int CHAIRS = 5;
+    static Semaphore barberReady = new Semaphore(0);
+    static Semaphore customerReady = new Semaphore(0);
+    static Semaphore accessSeats = new Semaphore(1);
+    static Queue<Integer> waiting = new LinkedList<>();
+    static int customerId = 1;
+
+    static class Barber implements Runnable {
+        @Override
+        public void run() {
+            try {
+                while (true) {
+                    customerReady.acquire(); // Ждёт клиента
+                    accessSeats.acquire();
+                    
+                    if (!waiting.isEmpty()) {
+                        int id = waiting.poll();
+                        System.out.println("Парикмахер стрижет клиента: " + id);
+                    }
+                    
+                    accessSeats.release();
+                    barberReady.release(); // Начинает стрижку
+                    
+                    Thread.sleep(1000); // Процесс стрижки
+                }
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    static class Customer implements Runnable {
+        private final int id;
+
+        Customer(int id) {
+            this.id = id;
+        }
+
+        @Override
+        public void run() {
+            try {
+                accessSeats.acquire();
+                if (waiting.size() < CHAIRS) {
+                    waiting.offer(id);
+                    System.out.println("Клиент " + id + " ждёт в очереди");
+                    
+                    customerReady.release(); // Будит парикмахера
+                    accessSeats.release();
+                    
+                    barberReady.acquire(); // Ждёт своей очереди
+                } else {
+                    System.out.println("Клиент " + id + " ушёл (нет мест)");
+                    accessSeats.release();
+                }
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public static void main(String[] args) {
+        new Thread(new Barber()).start();
+        
+        // Генерация клиентов
+        for (int i = 0; i < 20; i++) {
+            new Thread(new Customer(customerId++)).start();
+            try {
+                Thread.sleep(300); // Интервал между клиентами
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+}
