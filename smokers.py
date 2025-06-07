@@ -10,61 +10,63 @@ import threading
 import random
 import time
 import sys
+from typing import Dict, Tuple, List, Optional
 
 
 class ComponentStore:
     """
-    Centralized storage of components and semaphores for synchronization.
+    Component storage with semaphores for synchronization.
 
     Attributes:
-        pairs (dict): A dictionary of semaphores for each pair of components
-        bartender_lock (Semaphore): A semaphore for bartender access control
-        ingredient_names (dict): Matching the keys of the pairs and their names
+        pairs: A dictionary of semaphores for each pair of components
+        bartender_lock: Semaphore for bartender access control
+        component_names: Matching the keys of the pairs and their names
     """
-    def __init__(self):
-        """Initialization of the component storage."""
-        self.pairs = {
-            'TP': threading.Semaphore(0),  # Табак + Бумага
-            'TM': threading.Semaphore(0),  # Табак + Спички
-            'PM': threading.Semaphore(0)   # Бумага + Спички
+
+    def __init__(self) -> None:
+        """Initializing the component storage."""
+        self.pairs: Dict[str, threading.Semaphore] = {
+            'TP': threading.Semaphore(0),  # Tobacco + Paper
+            'TM': threading.Semaphore(0),  # Tobacco + Matches
+            'PM': threading.Semaphore(0)  # Paper + Matches
         }
-        self.bartender_lock = threading.Semaphore(1)
-        self.ingredient_names = {
-            'TP': ('Табак', 'Бумагу'),
-            'TM': ('Табак', 'Спички'),
-            'PM': ('Бумагу', 'Спички')
+        self.bartender_lock: threading.Semaphore = threading.Semaphore(1)
+        self.ingredient_names: Dict[str, Tuple[str, str]] = {
+            'TP': ('Tobacco', 'Paper'),
+            'TM': ('Tobacco', 'Matches'),
+            'PM': ('Paper', 'Matches')
         }
 
-    def get_pair_semaphore(self, pair_key):
+    def get_pair_semaphore(self, pair_key: str) -> Optional[threading.Semaphore]:
         """
         Get a semaphore for a specific pair of components.
 
         Params:
-            pair_key (str): The key of the component pair ('TP', 'TM' or 'PM')
+            pair_key: The key of the component pair ('TP', 'TM' or 'PM')
 
         Returns:
-            Semaphore: The semaphore corresponding to the requested pair
+            The semaphore corresponding to the requested pair
         """
         return self.pairs.get(pair_key)
 
-    def get_random_pair(self):
+    def get_random_pair(self) -> str:
         """
-       Randomly select an available pair of components.
+        Randomly select an available pair of components.
 
         Returns:
-            str: A random key from the available component pairs
+            A random key from the available component pairs
         """
         return random.choice(list(self.pairs.keys()))
 
-    def get_ingredients(self, pair_key):
+    def get_ingredients(self, pair_key: str) -> Tuple[str, str]:
         """
         Get the names of the components for the specified pair.
 
-        Parameters:
-            pair_key (str): The key of the component pair ('TP', 'TM' or 'PM')
+        Params:
+            pair_key: The key of the component pair ('TP', 'TM' or 'PM')
 
         Returns:
-            tuple: A tuple with two component names
+            A tuple with two component names
         """
         return self.ingredient_names.get(pair_key, ('', ''))
 
@@ -74,34 +76,34 @@ class Bartender(threading.Thread):
     Stream is the bartender who places the ingredients on the table.
 
     Constructor Params:
-        component_store (ComponentStore): Shared component storage
-
-    Attributes:
-        store (Component Store): Link to the component store
+        component_store: Shared Component Storage
     """
-    def __init__(self, component_store):
+
+    def __init__(self, component_store: ComponentStore) -> None:
         """
         Initialization of the bartender's flow.
 
         Params:
-            component_store (ComponentStore): Shared component storage
+            component_store: Shared Component Storage
         """
         super().__init__(daemon=True)
-        self.store = component_store
+        self.store: ComponentStore = component_store
 
-    def run(self):
+    def run(self) -> None:
         """The main work cycle of the bartender."""
         while True:
-            # Ожидать разрешения на размещение компонентов
+            # Wait for permission to place components
             self.store.bartender_lock.acquire()
 
-            # Выбрать и разместить случайную пару
-            selected = self.store.get_random_pair()
+            # Select and place random pair
+            selected: str = self.store.get_random_pair()
             item1, item2 = self.store.get_ingredients(selected)
-            print(f"\033[94mБармен разместил: {item1} и {item2}\033[0m")
+            print(f"\033[94mBartender placed: {item1} and {item2}\033[0m")
 
-            # Сигнализировать о наличии компонентов
-            self.store.get_pair_semaphore(selected).release()
+            # Signal component availability
+            semaphore = self.store.get_pair_semaphore(selected)
+            if semaphore:
+                semaphore.release()
 
 
 class Smoker(threading.Thread):
@@ -109,87 +111,98 @@ class Smoker(threading.Thread):
     A stream is a smoker waiting for components and smoking.
 
     Constructor Params:
-        name (str): The smoker's name
-        owned (str): A component owned by a smoker
-        wait_for (Semaphore): The semaphore of the expected pair of components
-        needs (tuple): A tuple of two necessary components
-        component_store (ComponentStore): Shared component storage
-
-    Attributes:
-        name (str): The smoker's name
-        owned (str): An existing component
-        wait_sem (Semaphore): The semaphore of the expected pair
-        needs (tuple): Necessary components
-        store (Component Store): Link to the storage
+        name: The smoker's name
+        owned: A component owned by a smoker
+        wait_for: The semaphore of the expected pair of components
+        needs: A tuple of two necessary components
+        component_store: Shared Component Storage
     """
-    def __init__(self, name, wait_for, needs, component_store):
+
+    def __init__(
+            self,
+            name: str,
+            wait_for: threading.Semaphore,
+            needs: Tuple[str, str],
+            component_store: ComponentStore
+    ) -> None:
         """
         Initialization of the smoker's flow.
 
         Params:
-            name (str): The smoker's name
-            wait_for (Semaphore): The semaphore of the expected pair of components
-            needs (tuple): A tuple of two necessary components
-            component_store (ComponentStore): Shared component storage
+            name: The smoker's name
+            owned: A component owned by a smoker
+            wait_for: The semaphore of the expected pair of components
+            needs: A tuple of two necessary components
+            component_store: Shared Component Storage
         """
         super().__init__(daemon=True)
-        self.name = name
-        self.wait_sem = wait_for
-        self.needs = needs
-        self.store = component_store
+        self.name: str = name
+        self.wait_sem: threading.Semaphore = wait_for
+        self.needs: Tuple[str, str] = needs
+        self.store: ComponentStore = component_store
 
-    def consume(self):
+    def consume(self) -> None:
         """The process of smoking a cigarette."""
-        print(f"\033[93m{self.name} начинает курить...\033[0m")
-        delay = random.uniform(1.5, 4.5)
+        print(f"\033[93m{self.name} starts smoking...\033[0m")
+        delay: float = random.uniform(1.5, 4.5)
         time.sleep(delay)
-        print(f"\033[93m{self.name} закончил ({delay:.1f} сек)\033[0m")
+        print(f"\033[93m{self.name} finished ({delay:.1f} sec)\033[0m")
 
-    def run(self):
+    def run(self) -> None:
         """The main work cycle of a smoker."""
         while True:
-            # Ожидать нужные компоненты
+            # Wait for needed components
             self.wait_sem.acquire()
 
-            # Взять компоненты со стола
+            # Take components from table
             print(f"\033[92m{self.name} "
-                  f"берёт {self.needs[0]} и {self.needs[1]}\033[0m")
+                  f"takes {self.needs[0]} and {self.needs[1]}\033[0m")
 
-            # Разрешить бармену положить новые компоненты
+            # Allow bartender to place new components
             self.store.bartender_lock.release()
 
-            # Процесс курения
+            # Smoking process
             self.consume()
 
 
-if __name__ == "__main__":
-    # Инициализация хранилища компонентов
-    comp_store = ComponentStore()
+def main() -> None:
+    """
+    The main function of the application.
 
-    # Создание и запуск бармена
-    bartender = Bartender(comp_store)
-    bartender.start()
+    Creates a repository of components, bartender and smoker streams,
+    and launches them. Handles program interruption.
+    """
+    # Initialize component store
+    comp_store: ComponentStore = ComponentStore()
 
-    # Конфигурация курильщиков
-    smokers_config = [
-        ("Курильщик Т", comp_store.pairs['PM'], ("Бумагу", "Спички")),
-        ("Курильщик Б", comp_store.pairs['TM'], ("Табак", "Спички")),
-        ("Курильщик С", comp_store.pairs['TP'], ("Табак", "Бумагу"))
+    # Create and start bartender
+    bartender_thread: Bartender = Bartender(comp_store)
+    bartender_thread.start()
+
+    # Smokers configuration
+    smokers_config: List[Tuple[str, str, threading.Semaphore, Tuple[str, str]]] = [
+        ("Tobacco Smoker", "Tobacco", comp_store.pairs['PM'], ("Paper", "Matches")),
+        ("Paper Smoker", "Paper", comp_store.pairs['TM'], ("Tobacco", "Matches")),
+        ("Matches Smoker", "Matches", comp_store.pairs['TP'], ("Tobacco", "Paper"))
     ]
 
-    # Создание и запуск курильщиков
-    smokers = [
+    # Create and start smokers
+    smokers: List[Smoker] = [
         Smoker(name, sem, needs, comp_store)
-        for name, sem, needs in smokers_config
+        for name, owned, sem, needs in smokers_config
     ]
 
     for smoker in smokers:
         smoker.start()
 
     try:
-        # Бесконечное ожидание с периодической проверкой
-        while all(smoker.is_alive() for smoker in smokers) and bartender.is_alive():
+        # Infinite wait with periodic checks
+        while all(smoker.is_alive() for smoker in smokers) and bartender_thread.is_alive():
             time.sleep(0.5)
     except KeyboardInterrupt:
-        print("\nЗавершение работы по запросу пользователя")
+        print("\nShutting down by user request")
         sys.exit(0)
+
+
+if __name__ == "__main__":
+    main()
