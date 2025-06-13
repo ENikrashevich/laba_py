@@ -10,6 +10,7 @@ public abstract class Employee {
     protected Order currentOrder;
     protected float earnings;
     protected Storage storage;
+    protected long workedSeconds;
 
     public Employee(LocalTime shiftStart, LocalTime shiftEnd) {
         this.employeeId = new Random().nextInt(1000);
@@ -17,6 +18,7 @@ public abstract class Employee {
         this.shiftEnd = shiftEnd;
         this.status = "Свободен";
         this.earnings = 0;
+        this.workedSeconds = 0;
     }
 
     public boolean isWorking() {
@@ -25,10 +27,10 @@ public abstract class Employee {
     }
 
     public void calculateSalary() {
-        int hours = (int) Duration.between(shiftStart, shiftEnd).toHours();
+        float hours = workedSeconds / 3600.0f;
         earnings = hours * 300;
         setStatus("Смена закончилась");
-        System.out.println("Работник " + employeeId + " заработал: " + earnings + " руб.");
+        System.out.println("Работник " + employeeId + " заработал: " + earnings);
     }
 
     public int getEmployeeId() { return employeeId; }

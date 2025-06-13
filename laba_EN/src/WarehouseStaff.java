@@ -31,6 +31,7 @@ public class WarehouseStaff extends Employee {
         int processingTime = currentOrder.getItems().length * 45;
         SimulationTime.advanceTime(processingTime);
         LocalTime completionTime = SimulationTime.currentTime();
+        workedSeconds = processingTime;
 
         for (Product item : currentOrder.getItems()) {
             inventory.put(item, inventory.get(item) - 1);

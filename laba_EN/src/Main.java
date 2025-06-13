@@ -24,27 +24,27 @@ public class Main {
         storage.addStaffMember(keeper);
 
         Supplier supplierLaptop = new Supplier(1, chair, 1);
-        Supplier suppliersofa = new Supplier(2, sofa,4);
-        Supplier suppliertable = new Supplier(3, table,3);
+        Supplier supplierSofa = new Supplier(2, sofa,4);
+        Supplier supplierTable = new Supplier(3, table,3);
 
         storage.addSupplier(supplierLaptop);
-        storage.addSupplier(suppliersofa);
-        storage.addSupplier(suppliertable);
+        storage.addSupplier(supplierSofa);
+        storage.addSupplier(supplierTable);
 
         Customer user1 = new Customer("user1@mail.ru", List.of(5, 5));
         Customer user2 = new Customer("user2@mail.ru", List.of(10, 10));
         Customer user3 = new Customer("user3@mail.ru", List.of(15, 15));
         Customer user4 = new Customer("user4@mail.ru", List.of(20, 20));
 
-        System.out.println("\n=== Заказ 1 в " + SimulationTime.currentTime() + " ===");
+        System.out.println("\nЗаказ 1 в " + SimulationTime.currentTime());
         user1.placeOrder(new Product[]{chair}, storage);
-        System.out.println("\n=== Заказ 2 в " + SimulationTime.currentTime() + " ===");
+        System.out.println("\nЗаказ 2 в " + SimulationTime.currentTime());
         user2.placeOrder(new Product[]{sofa, sofa}, storage);
         storage.processOrders();
 
-        System.out.println("\n=== Заказ 3 в " + SimulationTime.currentTime() + " ===");
+        System.out.println("\nЗаказ 3 в " + SimulationTime.currentTime());
         user3.placeOrder(new Product[]{table}, storage);
-        System.out.println("\n=== Заказ 4 в " + SimulationTime.currentTime() + " ===");
+        System.out.println("\nЗаказ 4 в " + SimulationTime.currentTime());
         user4.placeOrder(new Product[]{sofa, chair, table}, storage);
         storage.processOrders();
 

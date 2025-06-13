@@ -26,13 +26,14 @@ public class Courier extends Employee {
         System.out.println("Курьер " + employeeId + " начал доставку заказа " +
                 currentOrder.getOrderId() + " в " + SimulationTime.currentTime());
         System.out.println("От склада " + storageLoc + " до клиента " + customerLoc);
-        System.out.println("Расстояние: " + String.format("%.2f", distanceToCustomer) + " км");
+        System.out.println("Расстояние: " + distanceToCustomer + " км");
 
         int deliveryTime = (int) (distanceToCustomer * 30 + 120);  // 30 сек/км + 2 мин
         System.out.println("Ожидаемое время доставки: " + deliveryTime / 60 + " мин " + deliveryTime % 60 + " сек");
 
         // Доставка заказа
         SimulationTime.advanceTime(deliveryTime);
+        workedSeconds += deliveryTime;
         currentOrder.setStatus(Order.Status.DELIVERED);
         System.out.println("✓ Курьер " + employeeId + " доставил заказ " +
                 currentOrder.getOrderId() + " в " + SimulationTime.currentTime());
@@ -55,7 +56,8 @@ public class Courier extends Employee {
         System.out.println("Ожидаемое время: " + returnTime/60 + " мин " + returnTime%60 + " сек");
 
         SimulationTime.advanceTime(returnTime);
-        System.out.println("✓ Курьер " + employeeId + " вернулся на склад в " + SimulationTime.currentTime());
+        workedSeconds += returnTime;
+        System.out.println("Курьер " + employeeId + " вернулся на склад в " + SimulationTime.currentTime());
 
         // После возврата освобождаем курьера
         isReturning = false;
