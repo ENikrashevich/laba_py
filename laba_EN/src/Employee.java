@@ -30,7 +30,7 @@ public abstract class Employee {
         float hours = workedSeconds / 3600.0f;
         earnings = hours * 300;
         setStatus("Смена закончилась");
-        System.out.println("Работник " + employeeId + " заработал: " + earnings);
+        System.out.println("Работник " + employeeId + " заработал: " +  Math.round(earnings * 100.0) / 100.0);
     }
 
     public int getEmployeeId() { return employeeId; }
