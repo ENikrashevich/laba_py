@@ -11,7 +11,9 @@ public class Supplier {
 
     public void deliver(Storage storage, int quantity) {
         if (this.quantity >= quantity && this.quantity > 0){
-            storage.getInventory().merge(product, quantity, Integer::sum);
+SimulationTime.advanceTime(45);
+
+storage.getInventory().merge(product, quantity, Integer::sum);
             System.out.println("Поставщик " + supplierId + " доставил " + quantity +
                     " единиц товара " + product.getName());
         }
