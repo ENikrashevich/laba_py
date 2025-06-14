@@ -35,20 +35,17 @@ public class Courier extends Employee {
         SimulationTime.advanceTime(deliveryTime);
         workedSeconds += deliveryTime;
         currentOrder.setStatus(Order.Status.DELIVERED);
-        System.out.println("✓ Курьер " + employeeId + " доставил заказ " +
+        System.out.println("Курьер " + employeeId + " доставил заказ " +
                 currentOrder.getOrderId() + " в " + SimulationTime.currentTime());
 
         // Возврат на склад
         isReturning = true;
         setStatus("Возвращение");
-        returnToStorage();
+        returnToStorage(distanceToCustomer);
     }
 
     // Метод для возврата на склад
-    private void returnToStorage() {
-        List<Integer> storageLoc = currentOrder.getStorageLocation();
-        List<Integer> currentLoc = currentOrder.getCustomerLocation();
-        double returnDistance = calculateDistance(currentLoc, storageLoc);
+    private void returnToStorage(double returnDistance) {
 
         int returnTime = (int) (returnDistance * 30);
         System.out.println("Курьер " + employeeId + " возвращается на склад");
@@ -59,12 +56,10 @@ public class Courier extends Employee {
         workedSeconds += returnTime;
         System.out.println("Курьер " + employeeId + " вернулся на склад в " + SimulationTime.currentTime());
 
-        // После возврата освобождаем курьера
         isReturning = false;
         currentOrder = null;
         setStatus("Available");
 
-        // Проверяем новые заказы
         storage.processReadyOrders();
     }
 

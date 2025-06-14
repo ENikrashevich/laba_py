@@ -59,7 +59,7 @@ public class Storage {
             for (Product item : order.getItems()) {
                 int available = inventory.getOrDefault(item, 0);
                 if (available <= 0) {
-                    requestRestock(item, 5);
+                    requestRestock(item, new Random().nextInt(10) + 1);
                     available = inventory.getOrDefault(item, 0);
                 }
                 if (available <= 0) {
@@ -71,25 +71,24 @@ public class Storage {
                 unprocessed.offer(order);
                 System.out.println("Заказ " + order.getOrderId() +
                         " отложен (ожидается поставка)");
-            } else {
-                // Проверяем наличие свободных курьеров перед обработкой
-                if (hasAvailableCourier()) {
+            }
+            else {
+                if (hasAvailableCourier() && hasAvailableWarehouseStaff()) {
                     assignOrder(order);
-                } else {
+                }
+                else {
                     unprocessed.offer(order);
                     System.out.println("Заказ " + order.getOrderId() +
-                            " отложен (нет свободных курьеров)");
+                            " отложен (нет свободного персонала)");
                 }
             }
         }
         pendingOrders.addAll(unprocessed);
     }
 
-    // Проверка наличия свободных курьеров
     public boolean hasAvailableCourier() {
         for (Courier courier : couriers) {
-            if (courier.isWorking() &&
-                    courier.getCurrentOrder() == null &&
+            if (courier.isWorking() && courier.getCurrentOrder() == null &&
                     !courier.isReturning()) {
                 return true;
             }
@@ -110,6 +109,15 @@ public class Storage {
         }
     }
 
+    public boolean hasAvailableWarehouseStaff() {
+        for (WarehouseStaff warehouseStaff : staff) {
+            if (warehouseStaff.isWorking() &&
+                    warehouseStaff.getCurrentOrder() == null){
+                return true;
+            }
+        }
+        return false;
+    }
 
     private void assignOrder(Order order) {
         for (WarehouseStaff staffMember : staff) {
@@ -123,7 +131,6 @@ public class Storage {
         System.out.println("Нет свободных сборщиков");
     }
 
-    // Обработка готовых заказов
     public void processReadyOrders() {
         if (readyForDelivery.isEmpty()) return;
 

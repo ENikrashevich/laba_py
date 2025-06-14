@@ -23,9 +23,9 @@ public class Main {
         storage.addCourier(courier);
         storage.addStaffMember(keeper);
 
-        Supplier supplierLaptop = new Supplier(1, chair, 1);
-        Supplier supplierSofa = new Supplier(2, sofa,4);
-        Supplier supplierTable = new Supplier(3, table,3);
+        Supplier supplierLaptop = new Supplier(1, chair, 100);
+        Supplier supplierSofa = new Supplier(2, sofa,100);
+        Supplier supplierTable = new Supplier(3, table,100);
 
         storage.addSupplier(supplierLaptop);
         storage.addSupplier(supplierSofa);
